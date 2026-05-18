@@ -1,0 +1,54 @@
+
+import numpy as np
+from scipy.fft import fft, fftfreq
+from scipy.signal import find_peaks
+PHI = (np.sqrt(5) - 1) / 2
+
+
+# ── Arquitetura aditiva genérica ─────────────────────────────────
+def gamma(theta, n_max=500, alpha=1.5, k=1.0):
+    n = np.arange(1, n_max+1, dtype=float)
+    w = n**(-2*alpha); norm = w.sum()
+    th_n = 2*np.pi*(n*PHI % 1)
+    return np.sum(w*np.cos(k*theta - th_n)) / norm
+
+
+def correlacao_gen(theta, sigma=0.007, k=1.0):
+    return -np.cos(theta) + sigma * gamma(theta, k=k)
+
+
+# ── Pico FFT ─────────────────────────────────────────────────────
+def fft_peak(residuals, theta_grid):
+    T = theta_grid[1]-theta_grid[0]; N = len(theta_grid)
+    yf = fft(residuals - residuals.mean())
+    xf = fftfreq(N, T)[:N//2]
+    pot = np.abs(yf[:N//2])
+    pks, _ = find_peaks(pot, height=0.01*pot.max())
+    if not len(pks): return float('nan')
+    top = max(pks, key=lambda i: pot[i])
+    return np.degrees(1.0/xf[top]) if xf[top]>0 else float('nan')
+
+
+theta_grid = np.linspace(0.001, np.pi-0.001, 1000)
+qm = -np.cos(theta_grid)
+
+
+# TESTE 1: sweep de k
+print('k (rad⁻¹) | pico FFT (°)')
+for k in np.linspace(1.0, 20.0, 80):
+    mod = np.array([correlacao_gen(th, k=k) for th in theta_grid])
+    peak = fft_peak(mod - qm, theta_grid)
+    print(f'  {k:.3f}    {peak:.1f}°')
+
+
+# TESTE 2: sem k (arquitetura pura)
+def gamma_puro(theta, n_max=500, alpha=1.5):
+    n = np.arange(1, n_max+1, dtype=float)
+    w = n**(-2*alpha); norm = w.sum()
+    th_n = 2*np.pi*(n*PHI % 1)
+    return np.sum(w*np.cos(theta - th_n)) / norm  # sem k
+
+
+mod_puro = np.array([-np.cos(th) + 0.007*gamma_puro(th) for th in theta_grid])
+peak_puro = fft_peak(mod_puro - qm, theta_grid)
+print(f'Pico sem k: {peak_puro:.1f}°  (esperado: 180°)')
