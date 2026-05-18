@@ -1,0 +1,55 @@
+Appendix B: Independence Test Code
+Complete code to reproduce Tests 1 and 2 from Section 5. The negative result is fully reproducible.
+import numpy as np
+from scipy.fft import fft, fftfreq
+from scipy.signal import find_peaks
+
+
+PHI = (np.sqrt(5) - 1) / 2
+
+
+def gamma_fn(theta, n_max=500, alpha=1.5, k=1.0):
+    n = np.arange(1, n_max+1, dtype=float)
+    w = n**(-2*alpha); norm = w.sum()
+    th_n = 2*np.pi*(n*PHI % 1)
+    return np.sum(w*np.cos(k*theta - th_n)) / norm
+
+
+def correlation_gen(theta, sigma=0.007, k=1.0):
+    return -np.cos(theta) + sigma * gamma_fn(theta, k=k)
+
+
+def fft_peak(residuals, theta_grid):
+    T = theta_grid[1]-theta_grid[0]; N = len(theta_grid)
+    yf = fft(residuals - residuals.mean())
+    xf = fftfreq(N, T)[:N//2]
+    pot = np.abs(yf[:N//2])
+    pks, _ = find_peaks(pot, height=0.01*pot.max())
+    if not len(pks): return float('nan')
+    top = max(pks, key=lambda i: pot[i])
+    return np.degrees(1.0/xf[top]) if xf[top]>0 else float('nan')
+
+
+theta_grid = np.linspace(0.001, np.pi-0.001, 1000)
+qm = -np.cos(theta_grid)
+
+
+# TEST 1: k sweep
+print('k (rad⁻¹) | FFT peak (°)')
+for k in np.linspace(1.0, 20.0, 80):
+    mod = np.array([correlation_gen(th, k=k) for th in theta_grid])
+    peak = fft_peak(mod - qm, theta_grid)
+    print(f'  {k:.3f}    {peak:.1f}°')
+
+
+# TEST 2: no k (pure architecture)
+def gamma_pure(theta, n_max=500, alpha=1.5):
+    n = np.arange(1, n_max+1, dtype=float)
+    w = n**(-2*alpha); norm = w.sum()
+    th_n = 2*np.pi*(n*PHI % 1)
+    return np.sum(w*np.cos(theta - th_n)) / norm
+
+
+mod_pure = np.array([-np.cos(th) + 0.007*gamma_pure(th) for th in theta_grid])
+peak_pure = fft_peak(mod_pure - qm, theta_grid)
+print(f'Peak without k: {peak_pure:.1f}°  (expected: 180°)')
