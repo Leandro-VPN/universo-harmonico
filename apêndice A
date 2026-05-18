@@ -1,0 +1,20 @@
+
+#!/usr/bin/env python3
+import numpy as np
+PHI = (np.sqrt(5) - 1) / 2
+K_FIXO = 2 * np.pi / np.deg2rad(61.0)  # 5.9016 rad⁻¹
+
+
+def correlacao(theta1, theta2, gamma=13.5, k=K_FIXO, alpha=1.5, n_max=16000):
+    n    = np.arange(1, n_max + 1, dtype=float)
+    w    = n ** (-2 * alpha); norm = w.sum()
+    w1   = np.tan(theta1 / 2); w2 = np.tan(theta2 / 2)
+    th_n = 2 * np.pi * (n * PHI % 1)
+    C_bat  = np.sum(w * np.cos(k * (th_n - theta2))) / norm
+    A1sq   = 1.0 / (1.0 + ((n - w1) / gamma)**2)
+    A2sq   = 1.0 / (1.0 + ((n - w2) / gamma)**2)
+    C_prod = np.sum(w * (-1)**n * A1sq * A2sq) / norm
+    phi1   = -np.arctan2(n - w1, gamma)
+    phi2   = -np.arctan2(n - w2, gamma)
+    C_fase = np.sum(w * np.cos(phi1 - phi2)) / norm
+    return float(np.clip(-0.018*C_bat - 0.52*C_prod - 1.48*C_fase, -1.0, 1.0))
