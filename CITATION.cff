@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software or these protocols, please cite it as below."
+title: "O Universo Harmônico — Protocolos de Pré-Registro"
+authors:
+  - family-names: "Miguel"
+    given-names: "Leandro"
+    orcid: "https://orcid.org/0009-0003-4655-472X"
+version: v1.0-protocolos-pre-registro
+date-released: 2026-08-12
+doi: 10.5281/zenodo.21904456
+url: "https://github.com/Leandro-VPN/universo-harmonico"
+repository-code: "https://github.com/Leandro-VPN/universo-harmonico"
+license: MIT
