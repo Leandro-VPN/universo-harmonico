@@ -151,18 +151,38 @@ orientação 3 (n=40): 4.444.444 | **total: 7.999.999 ≈ 8M**
 (80s a 100 kHz — barato; m_alvo é decisão pré-registrada, escala 1/m²
 como nos demais protocolos).
 
-**Regra de decisão (matriz 3×3, diagonal vs. linha vs. nada):**
+**Regra de decisão (matriz 3×3 completa — nove células, diagonal vs.
+linha vs. nada):**
 
-- **A0 confirmado:** cada orientação mostra linha SOMENTE no seu
-  n_mod próprio (diagonal da matriz 3×3 orientação×alvo) — orientação
-  1 em n=4 mas não em n=28/40; orientação 2 em n=28 mas não em n=4/40;
-  orientação 3 em n=40 mas não em n=4/28.
-- **A0-nula confirmada:** as três orientações mostram linha
-  CONSISTENTEMENTE em n=28, e nenhuma mostra nos outros alvos.
-- **QM pura:** nenhuma orientação mostra linha em nenhum alvo.
+A matriz confirmatória é avaliada nas NOVE células orientação × alvo
+(n = 4, 28, 40), não apenas nas três primárias. O N de cada orientação
+é determinado pelo seu alvo primário, mas as três frequências são
+avaliadas no mesmo espectro de cada orientação — sem coleta adicional,
+pois todos os bins já existem no periodograma calculado.
+
+|  | n=4 | n=28 | n=40 |
+|---|---|---|---|
+| **Orient. 1** (4:1) | ✓ | ✗ | ✗ |
+| **Orient. 2** (7:4) | ✗ | ✓ | ✗ |
+| **Orient. 3** (8:5) | ✗ | ✗ | ✓ |
+
+- **Evidência confirmatória para A0**, sob o catálogo de sistemáticas
+  pré-especificado: padrão diagonal — presença nas três células-alvo E
+  ausência pré-especificada nos seis off-diagonais.
+- **Evidência confirmatória para A0-nula:** presença consistente em
+  n=28 nas três orientações E ausência nos seis bins off-target.
+- **QM pura:** nenhuma célula significativa.
 - **Padrão misto/inconsistente:** reportar sem promover a nenhuma das
   três — mesma disciplina do protocolo C×B (Seção 5 daquele
   documento).
+
+**Linguagem de reporte (obrigatória):** nenhum desfecho constitui
+prova. Um padrão diagonal é fortemente consistente com A0, mas
+sistemáticas instrumentais que correlacionem orientação e período
+permanecem, em princípio, explicação alternativa (§3, ressalva sobre
+artefato periódico universal). Reportar sempre como "evidência
+confirmatória sob o catálogo pré-especificado", nunca como "A0
+confirmado".
 
 Mesma regra de bin único do protocolo C×B (Seção 6.1 daquele
 documento) aplica-se aqui sem alteração: teste confirmatório apenas no

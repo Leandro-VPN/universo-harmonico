@@ -1,0 +1,88 @@
+PROTOCOL_LOCK_v1.1.txt
+======================
+Status: LOCKED BEFORE EXPERIMENTAL DATA COLLECTION
+Locked: 2026-08-12
+Reference tag: v1.1-protocolos
+(este arquivo faz parte do commit que a tag acima aponta -- a tag,
+ nao um hash escrito aqui, e a ancora permanente deste estado)
+
+CHANGES FROM v1.0
+------------------
+Supersedes: v1.0-protocolos-pre-registro (DOI
+10.5281/zenodo.21904456), which remains valid and unmodified as
+the original pre-registration.
+A0-v1 decision rule refined in two respects:
+  (1) confirmatory matrix now explicitly evaluated over all NINE
+      orientation x target cells; confirmation requires the
+      diagonal pattern WITH pre-specified absence in the six
+      off-diagonal cells. No additional data collection needed --
+      all bins already exist in each orientation's periodogram.
+  (2) reporting language: "confirmatory evidence under the
+      pre-specified systematics catalogue", never "A0 confirmed".
+CxB-v1 rules are UNCHANGED from v1.0.
+Both changes tighten the criteria; neither relaxes them.
+
+PROTOCOLS COVERED
+------------------
+- CxB-v1  (protocolo_discriminante_CxB_v1.md)
+- A0-v1   (axioma_0_identificabilidade_v1.md)
+Both depend on: admissibilidade_AII_D3_v1.md (Proposicao P6)
+
+GLOBAL PARAMETERS
+------------------
+m_target = 0.03  (pre-registered choice; N scales as 1/m^2 -- see each
+                   protocol's own scaling table for other targets)
+NPERM >= 60       (permutation-based significance ONLY; analytic
+                   threshold never used for the blind maximum)
+confirmatory test = single pre-specified FFT bin per configuration
+                    (n_mod exactly as tabulated in each protocol)
+NO post-hoc bin substitution.
+NO post-hoc window/width selection. (IV-d matched-filter search, if
+   ever run, is explicitly non-confirmatory / exploratory -- see
+   Sec. 6.1 of protocolo_discriminante_CxB_v1.md.)
+
+CxB-v1 DECISION RULE (locked)
+------------------------------
+Hierarchical -- NOT "any pair of {3,4,5}":
+  - FULL confirmation of C: configs 3 AND 4 AND 5 exceed threshold.
+  - PRIMARY (unreplicated) confirmation of C: 3 AND 4 exceed, 5 does
+    not -- report as such; do NOT treat as equivalent to full
+    confirmation.
+  - INCONSISTENT-WITH-C pattern: only one of {3,4}, or 5 alone --
+    report, do not promote.
+  - Confirmation of B: configs 1 AND 2 exceed threshold. No
+    angle-branch control is available for B in this design (declared
+    asymmetry relative to C -- see protocol Sec. 3).
+Configurations, angles, and target n_mod are fixed exactly as
+tabulated in protocolo_discriminante_CxB_v1.md, Section 2.
+
+A0-v1 DECISION RULE (locked)
+------------------------------
+3x3 matrix (orientations 1/2/3 x targets n=4/28/40). Significance via
+a SINGLE joint permutation calibration across the full 9-cell pattern
+-- not 9 independent per-cell tests at nominal alpha.
+  - A0 confirmed:      diagonal pattern (each orientation significant
+                        ONLY at its own predicted target).
+  - A0-null confirmed:  n=28 significant in ALL three orientations,
+                        not at 4 or 40.
+  - QM pure:             no significant cell anywhere.
+  - "A0-null confirmed" also confirms C, but ONLY in the operational
+    sense defined by this protocol (existence of modulation in these
+    three specific configurations) -- NOT the full harmonic model.
+    E3 and E4 remain untested by this protocol.
+Orientations and target n_mod fixed exactly as tabulated in
+axioma_0_identificabilidade_v1.md, Sections 3-5. Orientation 2 of
+this protocol IS configuration 3 (7:4 D3-exato, ramo 1) of CxB-v1 --
+shared, not duplicated, if both protocols run in the same session.
+
+WHAT THIS LOCK MEANS
+----------------------
+Any change to configurations, targets, N, m_target, or decision rules
+made AFTER this commit requires an explicit version bump:
+  v1 -> v1.1  for minor / non-substantive changes
+  v1 -> v2    for changes to decision logic
+and must NEVER be applied retroactively to interpret data already
+collected under this lock.
+
+Verification code reproducing every number in this file lives in
+analysis/protocols/ -- see README.md there for how to run it.
