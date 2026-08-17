@@ -46,7 +46,11 @@ essa é a regra central do pré-registro.
 - As 3 orientações da Seção 3 para Δθ = 21,787°, com n_geom(Δθ) = 28.
 - Consistência cruzada exigida pelo `PROTOCOL_LOCK`: a orientação 2 do A0
   é literalmente a configuração 3 do C×B (mesmos ângulos).
-- Tabela de N das 3 orientações (Seção 5).
+- N por **poder uniforme** (Seção 5, A0 v1.2): as três orientações recebem
+  o mesmo N, fixado pelo maior alvo da matriz com teto inteiro
+  (⌈N_min(n=40)⌉ = 4.444.445; total 13.333.335). Confere também os fatores
+  de poder relativo (0,14× e 0,10×) que o documento cita como justificativa,
+  e imprime o dimensionamento antigo (por alvo primário, v1.1) como contraste.
 - Simulação do falso-positivo **conjunto** da matriz 3×3 (Seção 4.1),
   contrastando com a fórmula ingênua α⁹ que o protocolo corretamente evita.
 

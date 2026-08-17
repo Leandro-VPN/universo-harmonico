@@ -38,7 +38,21 @@ def razao_tangentes(theta_a_deg: float, theta_b_deg: float) -> float:
 
 
 def n_min_trials(n_alvo: float, m: float = M_ALVO) -> int:
+    """Formula generica de poder: N_min ~ 100*n/m^2 (arredondada).
+    Continua sendo a formula do projeto; o que muda no A0 v1.2 e QUAL valor
+    o protocolo usa (ver n_min_trials_ceil / dimensionamento uniforme)."""
     return round(100.0 * n_alvo / (m * m))
+
+
+def n_min_trials_ceil(n_alvo: float, m: float = M_ALVO) -> int:
+    """Convencao declarada no A0 v1.2: N_min e cota INFERIOR, logo usa-se o
+    teto inteiro. N_min(n=40) = 4.444.444,44... -> 4.444.445."""
+    return math.ceil(100.0 * n_alvo / (m * m))
+
+
+# Alvo que fixa o N de TODAS as orientacoes sob dimensionamento por poder
+# uniforme (v1.2): o maior alvo da matriz 3x3.
+ALVO_MAX = 40
 
 
 def _f(s: str) -> float:
@@ -67,13 +81,15 @@ def parse_orientacoes(doc: Path):
     return orients
 
 
-def parse_N(doc: Path):
+def parse_N_uniforme(doc: Path):
+    """A0 v1.2: dimensionamento por PODER UNIFORME -- um unico N para as tres
+    orientacoes, fixado pelo maior alvo (n=40) com teto inteiro, mais o total."""
     txt = doc.read_text(encoding="utf-8")
-    pares = re.findall(r"orienta[çc][ãa]o\s*(\d)\s*\(n=(\d+)\):\s*([\d.]+)", txt)
-    tot = re.search(r"total:\s*([\d.]+)", txt)
-    out = {int(i): (int(n), int(v.replace(".", ""))) for (i, n, v) in pares}
-    total = int(tot.group(1).replace(".", "")) if tot else None
-    return out, total
+    m_per = re.search(r"⌈N_min\(n=40\)⌉\s*=\s*\**([\d.]+)", txt)
+    m_tot = re.search(r"Total:\s*\**\s*([\d.]+)", txt)
+    per = int(m_per.group(1).replace(".", "")) if m_per else None
+    tot = int(m_tot.group(1).replace(".", "")) if m_tot else None
+    return per, tot
 
 
 def main() -> int:
@@ -145,24 +161,42 @@ def main() -> int:
     else:
         print("    AVISO: protocolo CxB nao encontrado; conferencia cruzada pulada")
 
-    # ---- Secao 5: tabela de N ------------------------------------------------
-    print("\n[3] Secao 5 -- N por orientacao (m_alvo=0,03; N ~ 100*n_mod/m^2)")
-    Npub, total_pub = parse_N(DOC)
-    total_calc = 0
-    for o in ors:
-        n_alvo = o["p"] * o["q"]
-        N_calc = n_min_trials(n_alvo)
-        total_calc += N_calc
-        n_doc, N_doc = Npub.get(o["idx"], (None, None))
-        ok = (N_doc == N_calc) and (n_doc == n_alvo)
-        print(f"    orientacao {o['idx']} (n={n_alvo:>2}): calc={N_calc:>9,}   doc={N_doc:>9,}   "
-              f"{'OK' if ok else 'DIVERGE'}")
-        if not ok:
-            div.append(f"Secao 5: orientacao {o['idx']} N calc={N_calc} pub={N_doc}")
-    ok_t = (total_pub == total_calc)
-    print(f"    TOTAL: calc={total_calc:,}   doc={total_pub:,}   {'OK' if ok_t else 'DIVERGE'}")
-    if not ok_t:
+    # ---- Secao 5: N por PODER UNIFORME (v1.2) --------------------------------
+    print("\n[3] Secao 5 -- N por PODER UNIFORME (v1.2), m_alvo=0,03, teto inteiro")
+    exato = 100.0 * ALVO_MAX / (M_ALVO ** 2)
+    N_por_orient = n_min_trials_ceil(ALVO_MAX)
+    total_calc = 3 * N_por_orient
+    per_pub, total_pub = parse_N_uniforme(DOC)
+
+    print(f"    N_min(n={ALVO_MAX}) exato = {exato:,.2f}  ->  teto = {N_por_orient:,}")
+    ok_per = (per_pub == N_por_orient)
+    ok_tot = (total_pub == total_calc)
+    print(f"    N por orientacao (as 3 iguais): calc={N_por_orient:>10,}  doc={per_pub if per_pub is None else format(per_pub, ','):>10}  "
+          f"{'OK' if ok_per else 'DIVERGE'}")
+    print(f"    TOTAL (3 orientacoes):          calc={total_calc:>10,}  doc={total_pub if total_pub is None else format(total_pub, ','):>10}  "
+          f"{'OK' if ok_tot else 'DIVERGE'}")
+    if per_pub is None:
+        div.append("Secao 5: N por orientacao nao encontrado no documento")
+    elif not ok_per:
+        div.append(f"Secao 5: N por orientacao calc={N_por_orient} pub={per_pub}")
+    if total_pub is None:
+        div.append("Secao 5: total de N nao encontrado no documento")
+    elif not ok_tot:
         div.append(f"Secao 5: total calc={total_calc} pub={total_pub}")
+
+    # contraste com o dimensionamento v1.1 (por alvo primario) e os fatores de
+    # poder relativo que o documento cita como justificativa da mudanca
+    v11 = {o["idx"]: n_min_trials(o["p"] * o["q"]) for o in ors}
+    print(f"    contraste v1.1 (por alvo primario): "
+          f"{' + '.join(format(v11[i], ',') for i in sorted(v11))} = {sum(v11.values()):,}")
+    N_o1 = v11[1]
+    f28 = N_o1 / n_min_trials(28)
+    f40 = N_o1 / n_min_trials(40)
+    ok_f = abs(f28 - 0.14) < 5e-3 and abs(f40 - 0.10) < 5e-3
+    print(f"    justificativa citada: orientacao 1 teria {f28:.2f}x do N p/ testar n=28 "
+          f"e {f40:.2f}x p/ n=40   (doc: 0,14x e 0,10x)  {'OK' if ok_f else 'DIVERGE'}")
+    if not ok_f:
+        div.append(f"Secao 5: fatores de poder calc={f28:.3f}/{f40:.3f} vs doc 0,14/0,10")
 
     # ---- Secao 4.1: falso-positivo conjunto da matriz 3x3 --------------------
     print(f"\n[4] Secao 4.1 -- falso-positivo CONJUNTO da matriz 3x3 "

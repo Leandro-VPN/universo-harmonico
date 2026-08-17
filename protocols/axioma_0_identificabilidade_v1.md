@@ -99,7 +99,7 @@ admissibilidade_AII_D3_v1.md).
 | Hipótese | Previsão em (1) | (2) | (3) |
 |---|---|---|---|
 | **A0** (AII usa ângulos absolutos, modelo atual) | linha em n=4 | linha em n=28 | linha em n=40 |
-| **A0-nula** (ressonância só via Δθ, ignorando AII) | linha em n=28 | linha em n=28 | linha em n=28 |
+| **A0-nula** (D3 vale, AII não determina n_mod) | linha em n=28 | linha em n=28 | linha em n=28 |
 | **QM pura** (sem modulação harmônica, m=0) | nenhuma linha | nenhuma linha | nenhuma linha |
 
 A0-nula é o competidor honesto que faltava nos documentos anteriores:
@@ -107,6 +107,15 @@ um modelo que mantém D3 (ressonância determinada por Δθ, via D1
 diretamente) mas **descarta** o Axioma II como mecanismo de seleção de
 n_mod. Sob A0-nula, a mesma linha (n=28) apareceria nas três
 orientações — rotacionalmente invariante, como a QM padrão exige.
+
+**A0-nula NÃO é QM pura.** É hipótese *intermediária*: a condição de
+ressonância D3 continua valendo (existe modulação harmônica, m>0), mas
+o Axioma II não é o mecanismo que seleciona n_mod — a ressonância seria
+determinada apenas por Δθ, de forma rotacionalmente invariante. QM pura
+(m=0, sem modulação alguma) permanece como terceira hipótese distinta.
+A distinção importa porque um resultado A0-nula apoiaria a existência de
+modulação harmônica ao mesmo tempo que falsificaria a parte de seleção
+angular do Axioma 0.
 
 ### 4.1 Regra estatística conjunta (9 células, declarada antes da coleta)
 
@@ -145,11 +154,22 @@ quando eu giro o aparato mantendo Δθ fixo?".
 
 ## 5. Protocolo mínimo
 
-**N (m_alvo=0,03, mesma convenção do protocolo C×B):**
-orientação 1 (n=4): 444.444 | orientação 2 (n=28): 3.111.111 |
-orientação 3 (n=40): 4.444.444 | **total: 7.999.999 ≈ 8M**
-(80s a 100 kHz — barato; m_alvo é decisão pré-registrada, escala 1/m²
-como nos demais protocolos).
+**N (m_alvo=0,03, mesma convenção do protocolo C×B) — dimensionamento
+por PODER UNIFORME:** cada orientação recebe N = N_min(n=40) =
+**⌈N_min(n=40)⌉ = 4.444.445**, o maior alvo da matriz, não o N do seu
+alvo primário. **Total: 13.333.335** (133s a 100 kHz).
+
+*Convenção de arredondamento (declarada):* N_min é cota inferior, logo
+usa-se o teto inteiro (N_min(n=40) = 4.444.444,44…).
+
+*Motivo (correção de revisão, ago/2026):* como as nove células da
+matriz são confirmatórias (incluindo as seis ausências off-diagonais),
+dimensionar por alvo primário criaria assimetria de poder severa — a
+orientação 1 teria 0,14× do N necessário para testar n=28 e 0,10× para
+n=40; "ausência" ali seria falta de poder, não evidência de ausência.
+Custo do dimensionamento uniforme: +67% de dados (+53s). m_alvo
+permanece decisão pré-registrada, escala 1/m² como nos demais
+protocolos.
 
 **Regra de decisão (matriz 3×3 completa — nove células, diagonal vs.
 linha vs. nada):**
@@ -166,15 +186,25 @@ pois todos os bins já existem no periodograma calculado.
 | **Orient. 2** (7:4) | ✗ | ✓ | ✗ |
 | **Orient. 3** (8:5) | ✗ | ✗ | ✓ |
 
-- **Evidência confirmatória para A0**, sob o catálogo de sistemáticas
-  pré-especificado: padrão diagonal — presença nas três células-alvo E
-  ausência pré-especificada nos seis off-diagonais.
-- **Evidência confirmatória para A0-nula:** presença consistente em
-  n=28 nas três orientações E ausência nos seis bins off-target.
+**Nível 1 — critério primário (necessário e suficiente para resultado
+positivo):**
+
+- **A0:** significância conjunta nas três células-alvo da diagonal —
+  (O1, n=4) ∧ (O2, n=28) ∧ (O3, n=40).
+- **A0-nula:** significância conjunta em (O1, n=28) ∧ (O2, n=28) ∧
+  (O3, n=28).
 - **QM pura:** nenhuma célula significativa.
 - **Padrão misto/inconsistente:** reportar sem promover a nenhuma das
-  três — mesma disciplina do protocolo C×B (Seção 5 daquele
-  documento).
+  três — mesma disciplina do protocolo C×B (Seção 5 daquele documento).
+
+**Nível 2 — coerência do padrão (qualifica a interpretação, NÃO é
+exigência para o positivo):** as seis células off-diagonais são
+avaliadas e sempre reportadas. Um único excesso marginal entre elas não
+invalida o Nível 1; um padrão sistemático entre várias obriga a reabrir
+a interpretação (sistemática instrumental de banda larga, não
+ressonância). É por isso que o dimensionamento é por poder uniforme:
+sem ele, "ausência" nas off-diagonais seria falta de poder, e o Nível 2
+não teria conteúdo.
 
 **Linguagem de reporte (obrigatória):** nenhum desfecho constitui
 prova. Um padrão diagonal é fortemente consistente com A0, mas
